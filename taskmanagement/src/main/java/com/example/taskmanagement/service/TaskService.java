@@ -5,6 +5,7 @@ import com.example.taskmanagement.repository.ProjectRepository;
 import com.example.taskmanagement.repository.TaskRepository;
 import com.example.taskmanagement.repository.UserRepository;
 import com.example.taskmanagement.dto.request.TaskRequest;
+import com.example.taskmanagement.util.TaskStatus;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,9 @@ public class TaskService {
         if (request.getUserId() != null) {
             task.setUser(userRepo.findById(request.getUserId()).orElse(null));
         }
-        if (task.getStatus() == null) task.setStatus("TODO");
+        if (task.getStatus() == null) {
+            task.setStatus(TaskStatus.TODO);
+        }
         taskRepo.save(task);
     }
 
@@ -45,5 +48,13 @@ public class TaskService {
 
     public void deleteTask(Integer id) {
         taskRepo.deleteById(id);
+    }
+
+    public List<Task> getTasksByProject(Integer projectId) {
+        return taskRepo.findByProjectId(projectId);
+    }
+
+    public List<Task> getTasksByUser(Integer userId) {
+        return taskRepo.findByUserId(userId);
     }
 }

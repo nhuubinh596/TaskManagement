@@ -1,29 +1,36 @@
 package com.example.taskmanagement.entity;
 
+import com.example.taskmanagement.util.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.Date;
 
-@Data
 @Entity
-@Table(name = "task")
+@Table(name = "Task")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "title")
+    @Column(nullable = false, length = 200)
     private String title;
 
-    @Column(name = "status")
-    private String status; // TODO, IN_PROGRESS, DONE
+    @Column(length = 500)
+    private String description;
 
-    @Column(name = "deadline")
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TaskStatus status;
+
+    @Column(nullable = false)
     private Date deadline;
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
     @ManyToOne

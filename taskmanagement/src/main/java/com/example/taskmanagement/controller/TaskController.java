@@ -38,4 +38,14 @@ public class TaskController {
         taskService.deleteTask(id);
         return "Xóa thành công!";
     }
+
+    @GetMapping("/project/{id}")
+    public List<Task> getTasksByProject(@PathVariable("id") Integer projectId) {
+        return taskService.getTasksByProject(projectId);
+    }
+
+    @GetMapping("/user/{id}")
+    public List<Task> getTasksByUser(@PathVariable("id") Integer userId) {
+        return taskService.getTasksByUser(userId);
+    }
 }

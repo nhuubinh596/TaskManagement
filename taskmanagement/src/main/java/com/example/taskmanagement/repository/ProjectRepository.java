@@ -4,4 +4,5 @@ import com.example.taskmanagement.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
+    boolean existsByIdAndUsersId(Integer projectId, Integer userId);
 }

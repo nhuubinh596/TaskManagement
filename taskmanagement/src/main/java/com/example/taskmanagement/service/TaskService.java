@@ -1,6 +1,8 @@
 package com.example.taskmanagement.service;
 
+import com.example.taskmanagement.entity.Project;
 import com.example.taskmanagement.entity.Task;
+import com.example.taskmanagement.entity.User;
 import com.example.taskmanagement.repository.ProjectRepository;
 import com.example.taskmanagement.repository.TaskRepository;
 import com.example.taskmanagement.repository.UserRepository;
@@ -27,23 +29,45 @@ public class TaskService {
         return taskRepo.findAll();
     }
 
-    public void createTask(TaskRequest request) {
+    public Task createTask(TaskRequest request) {
         Task task = new Task();
         BeanUtils.copyProperties(request, task);
-        task.setProject(projectRepo.findById(request.getProjectId()).orElse(null));
+        Project project = projectRepo.findById(request.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Lỗi: Không tìm thấy Project với ID = " + request.getProjectId()));
+        task.setProject(project);
+
         if (request.getUserId() != null) {
-            task.setUser(userRepo.findById(request.getUserId()).orElse(null));
+            User user = userRepo.findById(request.getUserId())
+                    .orElseThrow(() -> new RuntimeException("Lỗi: Không tìm thấy User với ID = " + request.getUserId()));
+            task.setUser(user);
         }
         if (task.getStatus() == null) {
             task.setStatus(TaskStatus.TODO);
         }
-        taskRepo.save(task);
+
+        return taskRepo.save(task);
     }
 
-    public void assignTask(Integer taskId, Integer userId) {
-        Task task = taskRepo.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setUser(userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
-        taskRepo.save(task);
+    public Task assignTask(Integer taskId, Integer userId) {
+        Task task = taskRepo.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Lỗi: Không tìm thấy Task ID = " + taskId));
+
+        if (task.getStatus() == TaskStatus.DONE) {
+            throw new RuntimeException("Lỗi: Task đã hoàn thành (DONE), không thể giao lại!");
+        }
+
+        Integer projectId = task.getProject().getId();
+        boolean isMember = projectRepo.existsByIdAndUsersId(projectId, userId);
+
+        if (!isMember) {
+            throw new RuntimeException("Lỗi: User ID " + userId + " không phải thành viên của dự án này! Vui lòng add vào project trước.");
+        }
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Lỗi: Không tìm thấy User ID = " + userId));
+
+        task.setUser(user);
+        return taskRepo.save(task);
     }
 
     public void deleteTask(Integer id) {
@@ -56,5 +80,23 @@ public class TaskService {
 
     public List<Task> getTasksByUser(Integer userId) {
         return taskRepo.findByUserId(userId);
+    }
+
+    public Task updateTaskStatus(Integer taskId, String newStatus) {
+        Task task = taskRepo.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Lỗi: Không tìm thấy Task ID = " + taskId));
+
+        if (task.getStatus() == TaskStatus.DONE) {
+            throw new RuntimeException("Lỗi: Task đã đóng (DONE), không thể thay đổi trạng thái nữa!");
+        }
+
+        try {
+            TaskStatus status = TaskStatus.valueOf(newStatus);
+            task.setStatus(status);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Lỗi: Trạng thái không hợp lệ! Chỉ chấp nhận: TODO, IN_PROGRESS, DONE");
+        }
+
+        return taskRepo.save(task);
     }
 }

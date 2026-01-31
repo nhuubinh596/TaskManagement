@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "Project")
@@ -12,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -33,4 +34,13 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Task> tasks;
+
+    @ManyToMany
+    @JoinTable(
+            name = "project_member",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnore
+    private Set<User> users = new HashSet<>();
 }

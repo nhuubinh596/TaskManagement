@@ -3,7 +3,7 @@ package com.example.taskmanagement.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.Date;
+import java.time.LocalDate; // Dùng LocalDate cho chuẩn
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ import java.util.HashSet;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -25,8 +25,7 @@ public class Project {
     private String description;
 
     @Column(name = "start_date")
-    @Temporal(TemporalType.DATE)
-    private Date startDate;
+    private LocalDate startDate;
 
     @Column(length = 20)
     private String status;

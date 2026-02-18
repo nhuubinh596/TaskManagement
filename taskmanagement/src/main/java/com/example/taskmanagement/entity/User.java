@@ -1,5 +1,6 @@
 package com.example.taskmanagement.entity;
 
+import com.example.taskmanagement.util.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class User {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "role", nullable = false, length = 20)
-    private String role;
+    @Column(name = "role", nullable = false, length = 250)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

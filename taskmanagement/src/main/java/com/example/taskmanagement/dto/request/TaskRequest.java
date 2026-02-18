@@ -24,7 +24,7 @@ public class TaskRequest {
     private String status;
 
     @NotNull(message = "Task phải thuộc về một Project")
-    private Integer projectId;
+    private Long projectId;
 
     private Integer userId;
 }

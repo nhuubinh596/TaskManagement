@@ -6,6 +6,7 @@ import com.example.taskmanagement.dto.request.TaskRequest;
 import com.example.taskmanagement.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,10 +19,11 @@ public class TaskController {
     private TaskService taskService;
 
     @GetMapping
-    public ApiResponse<List<Task>> getAll() {
-        ApiResponse<List<Task>> response = new ApiResponse<>();
-        response.setResult(taskService.getAllTasks());
-        return response;
+    public ApiResponse<List<Task>> getAllTasks() {
+        return ApiResponse.<List<Task>>builder()
+                .result(taskService.getMyTasks())
+                .message("Lấy danh sách task của bạn thành công!")
+                .build();
     }
 
     @PostMapping("/add")
@@ -36,7 +38,7 @@ public class TaskController {
     }
 
     @PutMapping("/assign")
-    public ApiResponse<Task> assign(@RequestParam Integer taskId, @RequestParam Integer userId) {
+    public ApiResponse<Task> assign(@RequestParam Long taskId, @RequestParam Integer userId) {
         Task task = taskService.assignTask(taskId, userId);
 
         return ApiResponse.<Task>builder()
@@ -46,13 +48,13 @@ public class TaskController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ApiResponse<String> delete(@PathVariable Integer id) {
+    public ApiResponse<String> delete(@PathVariable Long id) {
         taskService.deleteTask(id);
         return new ApiResponse<>(1000, "Xóa thành công!", null);
     }
 
     @GetMapping("/project/{id}")
-    public List<Task> getTasksByProject(@PathVariable("id") Integer projectId) {
+    public List<Task> getTasksByProject(@PathVariable("id") Long projectId) {
         return taskService.getTasksByProject(projectId);
     }
 
@@ -62,7 +64,16 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/status")
-    public ApiResponse<Task> updateStatus(@PathVariable Integer id, @RequestParam String status) {
+    public ApiResponse<Task> updateStatus(@PathVariable Long id, @RequestParam String status) {
         return new ApiResponse<>(1000, "Cập nhật trạng thái thành công", taskService.updateTaskStatus(id, status));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public ApiResponse<String> deleteTask(@PathVariable Long id) {
+        taskService.deleteTask(id);
+        return ApiResponse.<String>builder()
+                .result("Xóa task thành công")
+                .build();
     }
 }

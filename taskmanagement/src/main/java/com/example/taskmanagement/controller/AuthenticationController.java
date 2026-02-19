@@ -1,15 +1,15 @@
 package com.example.taskmanagement.controller;
 
+import com.example.taskmanagement.dto.request.LoginRequest;
 import com.example.taskmanagement.dto.request.RegisterRequest;
 import com.example.taskmanagement.dto.response.ApiResponse;
 import com.example.taskmanagement.entity.User;
-import com.example.taskmanagement.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import com.example.taskmanagement.dto.request.LoginRequest;
-import com.example.taskmanagement.util.JwtUtil;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.taskmanagement.repository.UserRepository;
+import com.example.taskmanagement.service.UserService;
+import com.example.taskmanagement.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -30,7 +30,6 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ApiResponse<User> register(@RequestBody RegisterRequest request) {
         User result = userService.register(request);
-
         return ApiResponse.<User>builder()
                 .result(result)
                 .message("Đăng ký thành công!")
@@ -47,7 +46,6 @@ public class AuthenticationController {
         }
 
         String token = jwtUtil.generateToken(user.getUsername());
-
         return ApiResponse.<String>builder()
                 .result(token)
                 .message("Đăng nhập thành công!")

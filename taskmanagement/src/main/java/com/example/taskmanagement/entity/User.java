@@ -1,29 +1,72 @@
 package com.example.taskmanagement.entity;
 
-import com.example.taskmanagement.util.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-@Data
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "username", nullable = false, unique = true, length = 50)
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(name = "email", nullable = false, unique = true, length = 100)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @JsonIgnore
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "role", nullable = false, length = 250)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "members")
+    private Set<Project> projects = new HashSet<>();
+
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() { return true; }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() { return true; }
 }

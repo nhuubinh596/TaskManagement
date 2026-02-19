@@ -1,14 +1,13 @@
 package com.example.taskmanagement.controller;
 
+import com.example.taskmanagement.dto.request.TaskRequest;
 import com.example.taskmanagement.dto.response.ApiResponse;
 import com.example.taskmanagement.entity.Task;
-import com.example.taskmanagement.dto.request.TaskRequest;
 import com.example.taskmanagement.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -29,28 +28,19 @@ public class TaskController {
     @PostMapping("/add")
     public ApiResponse<Task> add(@RequestBody @Valid TaskRequest request) {
         Task task = taskService.createTask(request);
-
-        ApiResponse<Task> response = new ApiResponse<>();
-        response.setMessage("Thêm thành công!");
-        response.setResult(task);
-
-        return response;
+        return ApiResponse.<Task>builder()
+                .message("Thêm thành công!")
+                .result(task)
+                .build();
     }
 
     @PutMapping("/assign")
     public ApiResponse<Task> assign(@RequestParam Long taskId, @RequestParam Integer userId) {
         Task task = taskService.assignTask(taskId, userId);
-
         return ApiResponse.<Task>builder()
                 .message("Giao việc thành công!")
                 .result(task)
                 .build();
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ApiResponse<String> delete(@PathVariable Long id) {
-        taskService.deleteTask(id);
-        return new ApiResponse<>(1000, "Xóa thành công!", null);
     }
 
     @GetMapping("/project/{id}")

@@ -29,7 +29,7 @@ public class ProjectController {
     public ApiResponse<Project> createProject(@RequestBody ProjectRequest request) {
         return ApiResponse.<Project>builder()
                 .result(projectService.createProject(request))
-                .message("Tạo dự án thành công!")
+                .message("Create project successfully")
                 .build();
     }
 }

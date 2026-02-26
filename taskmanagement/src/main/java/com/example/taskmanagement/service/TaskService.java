@@ -60,14 +60,14 @@ public class TaskService {
 
     public Task assignTask(Long taskId, Integer userId) {
         Task task = taskRepo.findById(taskId)
-                .orElseThrow(() -> new ResourceNotFoundException("Lỗi: Không tìm thấy Task ID = " + taskId));
-
-        if (task.getStatus() == TaskStatus.DONE) {
-            throw new RuntimeException("Lỗi: Task đã hoàn thành (DONE), không thể giao lại!");
-        }
-
+                .orElseThrow(() -> new RuntimeException("Task not found"));
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Lỗi: Không tìm thấy User ID = " + userId));
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+       boolean isMember = task.getProject().getMembers().contains(user);
+        if (!isMember) {
+            throw new RuntimeException("User không thuộc dự án này");
+        }
 
         task.setUser(user);
         return taskRepo.save(task);

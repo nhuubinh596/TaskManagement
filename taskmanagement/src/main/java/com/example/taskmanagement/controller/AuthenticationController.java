@@ -7,12 +7,15 @@ import com.example.taskmanagement.entity.User;
 import com.example.taskmanagement.repository.UserRepository;
 import com.example.taskmanagement.service.UserService;
 import com.example.taskmanagement.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "1. Authentication", description = "Các API Đăng ký và Đăng nhập")
 public class AuthenticationController {
 
     @Autowired
@@ -28,6 +31,7 @@ public class AuthenticationController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
+    @Operation(summary = "Đăng ký tài khoản mới", description = "Truyền vào username, email và password")
     public ApiResponse<User> register(@RequestBody RegisterRequest request) {
         User result = userService.register(request);
         return ApiResponse.<User>builder()
@@ -37,6 +41,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Đăng nhập hệ thống", description = "Trả về JWT token nếu thành công")
     public ApiResponse<String> login(@RequestBody LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));

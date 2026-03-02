@@ -4,6 +4,8 @@ import com.example.taskmanagement.dto.request.TaskRequest;
 import com.example.taskmanagement.dto.response.ApiResponse;
 import com.example.taskmanagement.entity.Task;
 import com.example.taskmanagement.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,12 +14,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "3. Task Management", description = "Quản lý Công việc")
 public class TaskController {
 
     @Autowired
     private TaskService taskService;
 
     @GetMapping
+    @Operation(summary = "Lấy danh sách task của người đang đăng nhập")
     public ApiResponse<List<Task>> getAllTasks() {
         return ApiResponse.<List<Task>>builder()
                 .result(taskService.getMyTasks())
@@ -26,6 +30,7 @@ public class TaskController {
     }
 
     @PostMapping("/add")
+    @Operation(summary = "Thêm task mới vào dự án")
     public ApiResponse<Task> add(@RequestBody @Valid TaskRequest request) {
         Task task = taskService.createTask(request);
         return ApiResponse.<Task>builder()
@@ -35,6 +40,7 @@ public class TaskController {
     }
 
     @PutMapping("/assign")
+    @Operation(summary = "Giao task cho nhân viên")
     public ApiResponse<Task> assign(@RequestParam Long taskId, @RequestParam Integer userId) {
         Task task = taskService.assignTask(taskId, userId);
         return ApiResponse.<Task>builder()
@@ -44,22 +50,26 @@ public class TaskController {
     }
 
     @GetMapping("/project/{id}")
+    @Operation(summary = "Lấy danh sách task theo ID dự án")
     public List<Task> getTasksByProject(@PathVariable("id") Long projectId) {
         return taskService.getTasksByProject(projectId);
     }
 
     @GetMapping("/user/{id}")
+    @Operation(summary = "Lấy danh sách task theo ID người dùng")
     public List<Task> getTasksByUser(@PathVariable("id") Integer userId) {
         return taskService.getTasksByUser(userId);
     }
 
     @PatchMapping("/{id}/status")
+    @Operation(summary = "Cập nhật trạng thái của task (TODO, IN_PROGRESS, DONE)")
     public ApiResponse<Task> updateStatus(@PathVariable Long id, @RequestParam String status) {
         return new ApiResponse<>(1000, "Cập nhật trạng thái thành công", taskService.updateTaskStatus(id, status));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('MANAGER')")
+    @Operation(summary = "Xóa task", description = "Yêu cầu quyền MANAGER")
     public ApiResponse<String> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ApiResponse.<String>builder()

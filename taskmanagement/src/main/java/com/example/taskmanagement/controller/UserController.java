@@ -6,6 +6,8 @@ import com.example.taskmanagement.entity.Role;
 import com.example.taskmanagement.entity.User;
 import com.example.taskmanagement.repository.UserRepository;
 import com.example.taskmanagement.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/users")
+@Tag(name = "4. User Management", description = "Quản lý Tài khoản nhân viên")
 public class UserController {
 
     @Autowired
@@ -25,6 +28,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping
+    @Operation(summary = "Lấy danh sách tất cả nhân viên", description = "Yêu cầu quyền MANAGER")
     public ApiResponse<List<UserResponse>> getAllUsers() {
         List<User> users = userService.getAllUsers();
 
@@ -43,6 +47,7 @@ public class UserController {
     }
 
     @PostMapping
+    @Operation(summary = "Tạo tài khoản nhân viên mới trực tiếp (bỏ qua auth)")
     public User createUser(@RequestBody User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Lỗi: Username '" + user.getUsername() + "' đã tồn tại!");

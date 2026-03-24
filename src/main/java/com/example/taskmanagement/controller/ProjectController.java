@@ -6,6 +6,7 @@ import com.example.taskmanagement.entity.Project;
 import com.example.taskmanagement.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class ProjectController {
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGER')")
     @Operation(summary = "Tạo dự án mới", description = "Yêu cầu quyền MANAGER")
-    public ApiResponse<Project> createProject(@RequestBody ProjectRequest request) {
+    public ApiResponse<Project> createProject(@Valid @RequestBody ProjectRequest request) {
         return ApiResponse.<Project>builder()
                 .result(projectService.createProject(request))
                 .message("Create project successfully")
